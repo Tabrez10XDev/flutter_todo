@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_todo/databaseHelper.dart';
 import 'package:flutter_todo/screens/taskpage.dart';
 import 'package:flutter_todo/widgets.dart';
 
@@ -11,6 +12,9 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+
+  DatabaseHelper _dbHelper = DatabaseHelper();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,20 +42,31 @@ class _HomepageState extends State<Homepage> {
                     ),
                   ),
                   Expanded(
-                    child: ScrollConfiguration(
-                      behavior: NoGlowBehaviour(),
-                      child: ListView(
-                        children: [
-                          TaskCardWidget(
-                            title: "Get Started!",
-                            desc: "Hello User! Welcome to FLUTTER_TODO app, this is a default task that you can edit or delete to start using the app",
+                    child: FutureBuilder(
+                      initialData: [],
+                      future: _dbHelper.getTasks(),
+                      builder: (context, snapshot){
+                        return ScrollConfiguration(
+                          behavior: NoGlowBehaviour(),
+                          child: ListView.builder(
+                            itemCount: snapshot.data.length,
+                            itemBuilder: (context, index){
+                              return GestureDetector(
+                                onTap: (){
+                                   Navigator.push(
+                                       context,
+                                       MaterialPageRoute(builder: (context) => Taskpage(
+                                         task: snapshot.data[index],
+                                       )));
+                                },
+                                child: TaskCardWidget(
+                                  title: snapshot.data[index].title,
+                                ),
+                              );
+                            },
                           ),
-                          TaskCardWidget(),
-                          TaskCardWidget(),
-                          TaskCardWidget(),
-                          TaskCardWidget(),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   )
                 ],
@@ -64,9 +79,11 @@ class _HomepageState extends State<Homepage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context)=> Taskpage(),
+                        builder: (context)=> Taskpage(task: null,),
                       ),
-                    );
+                    ).then((value){
+                      setState(() {});
+                    });
                   },
                   child: Container(
                     width: 60.0,
@@ -95,3 +112,7 @@ class _HomepageState extends State<Homepage> {
   }
 }
 
+// TaskCardWidget(
+// title: "Get Started!",
+// desc: "Hello User! Welcome to FLUTTER_TODO app, this is a default task that you can edit or delete to start using the app",
+// ),
