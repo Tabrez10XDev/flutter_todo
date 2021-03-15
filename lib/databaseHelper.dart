@@ -41,6 +41,16 @@ class DatabaseHelper{
         "todo", todo.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  Future<void> updateTaskTitle(int id, String title) async{
+    Database _db = await database();
+    await _db.rawUpdate("UPDATE tasks set title = '$title' WHERE id = '$id'");
+  }
+
+  Future<void> updateTaskDescription(int id, String description) async{
+    Database _db = await database();
+    await _db.rawUpdate("UPDATE tasks set description = '$description' WHERE id = '$id'");
+  }
+
   Future<List<Task>> getTasks() async {
     Database _db = await database();
     List<Map<String, dynamic>> taskMap = await _db.query("tasks");

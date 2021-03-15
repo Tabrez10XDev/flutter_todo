@@ -18,6 +18,7 @@ class _TaskpageState extends State<Taskpage> {
 
   int _taskId= 0;
   String _taskTitle = "";
+  String _taskDescription = "";
   DatabaseHelper _dbHelper = DatabaseHelper();
 
   FocusNode _titleFocus;
@@ -31,6 +32,7 @@ class _TaskpageState extends State<Taskpage> {
     if(widget.task != null){
       _contentVisible = true;
       _taskTitle = widget.task.title;
+      _taskDescription = widget.task.description;
       _taskId = widget.task.id;
     }
     _titleFocus = FocusNode();
@@ -84,8 +86,13 @@ class _TaskpageState extends State<Taskpage> {
                                       title: value
                                   );
                                   _taskId = await _dbHelper.insertTask(_newTask);
+                                  setState(() {
+                                    _contentVisible = true;
+                                    _taskTitle = value;
+                                  });
                                   print("New Task has been created: $_taskId");
                                 }else{
+                                  _dbHelper.updateTaskTitle(_taskId, value);
                                   print("Updating the existing task");
                                 }
                                 _descriptionFocus.requestFocus();
@@ -114,7 +121,13 @@ class _TaskpageState extends State<Taskpage> {
                         focusNode: _descriptionFocus,
                         onSubmitted: (value){
                           _todoFocus.requestFocus();
+                          if(value != ""){
+                            if(_taskId != 0){
+                              _dbHelper.updateTaskDescription(_taskId, value);
+                            }
+                          }
                         },
+                        controller: TextEditingController()..text = _taskDescription,
                         decoration: InputDecoration(
                             hintText: "Enter Description for the Task",
                             border: InputBorder.none,
